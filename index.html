@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💳 Transaction Tracker</h1>
+            <p class="subtitle">Track all your payments in one place</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Quick Add Section -->
+            <div class="card quick-add-card">
+                <h2>Quick Add</h2>
+                <p class="help-text">Choose the easiest way to add your transaction</p>
+
+                <!-- Quick Add Buttons -->
+                <div class="quick-add-buttons">
+                    <button type="button" class="quick-btn" id="voiceBtn">
+                        <span class="btn-icon">🎤</span>
+                        <span class="btn-text">Voice</span>
+                        <span class="btn-hint">Say it</span>
+                    </button>
+                    <button type="button" class="quick-btn" id="cameraBtn">
+                        <span class="btn-icon">📷</span>
+                        <span class="btn-text">Receipt</span>
+                        <span class="btn-hint">Snap it</span>
+                    </button>
+                    <button type="button" class="quick-btn" id="manualBtn">
+                        <span class="btn-icon">✏️</span>
+                        <span class="btn-text">Manual</span>
+                        <span class="btn-hint">Type it</span>
+                    </button>
+                </div>
+
+                <!-- Voice Recording Interface -->
+                <div id="voiceInterface" class="input-interface" style="display: none;">
+                    <div class="recording-status">
+                        <div class="pulse-indicator"></div>
+                        <p id="recordingText">Click the microphone to start recording</p>
+                    </div>
+                    <button type="button" id="recordBtn" class="record-btn">
+                        <span class="mic-icon">🎤</span>
+                    </button>
+                    <p class="example-text">Example: "Spent $25 at Starbucks with Apple Pay"</p>
+                    <div id="voiceTranscript" class="transcript"></div>
+                </div>
+
+                <!-- Camera Interface -->
+                <div id="cameraInterface" class="input-interface" style="display: none;">
+                    <input type="file" id="receiptCamera" accept="image/*" capture="environment" style="display: none;">
+                    <button type="button" id="takePictureBtn" class="camera-btn">
+                        <span class="camera-icon">📷</span>
+                        <span>Take or Upload Receipt</span>
+                    </button>
+                    <div id="cameraPreview" class="camera-preview"></div>
+                    <p class="analyzing-text" id="analyzingText" style="display: none;">
+                        <span class="spinner"></span> Analyzing receipt...
+                    </p>
+                </div>
+
+                <!-- Manual Form (Simplified) -->
+                <div id="manualInterface" class="input-interface" style="display: none;">
+                    <form id="transactionForm">
+                        <div class="form-row">
+                            <input type="number" id="amount" step="0.01" placeholder="Amount ($)" required>
+                            <input type="text" id="merchant" placeholder="Where?" required>
+                        </div>
+                        <div class="form-row">
+                            <select id="paymentMethod">
+                                <option value="Apple Pay">Apple Pay</option>
+                                <option value="Zelle">Zelle</option>
+                                <option value="Venmo">Venmo</option>
+                                <option value="Cash App">Cash App</option>
+                                <option value="Credit Card">Card</option>
+                                <option value="Cash">Cash</option>
+                            </select>
+                            <input type="date" id="date">
+                        </div>
+                        <button type="submit" class="btn-primary">Add</button>
+                    </form>
+                </div>
+
+                <!-- Confirmation Message -->
+                <div id="confirmationMsg" class="confirmation-msg" style="display: none;"></div>
+            </div>
+
+            <!-- Transactions List -->
+            <div class="card">
+                <div class="list-header">
+                    <h2>Recent Transactions</h2>
+                    <div class="filter-controls">
+                        <select id="filterPayment" class="filter-select">
+                            <option value="">All Payment Methods</option>
+                            <option value="Apple Pay">Apple Pay</option>
+                            <option value="Zelle">Zelle</option>
+                            <option value="Venmo">Venmo</option>
+                            <option value="Cash App">Cash App</option>
+                            <option value="PayPal">PayPal</option>
+                            <option value="Credit Card">Credit Card</option>
+                            <option value="Debit Card">Debit Card</option>
+                            <option value="Cash">Cash</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <select id="filterCategory" class="filter-select">
+                            <option value="">All Categories</option>
+                            <option value="Food & Dining">Food & Dining</option>
+                            <option value="Groceries">Groceries</option>
+                            <option value="Shopping">Shopping</option>
+                            <option value="Transportation">Transportation</option>
+                            <option value="Entertainment">Entertainment</option>
+                            <option value="Bills & Utilities">Bills & Utilities</option>
+                            <option value="Healthcare">Healthcare</option>
+                            <option value="Personal">Personal</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="summary">
+                    <div class="summary-item">
+                        <span class="summary-label">Total Transactions:</span>
+                        <span id="totalCount" class="summary-value">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Total Amount:</span>
+                        <span id="totalAmount" class="summary-value">$0.00</span>
+                    </div>
+                </div>
+
+                <div id="transactionsList" class="transactions-list">
+                    <p class="empty-state">No transactions yet. Add your first transaction above!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Receipt Modal -->
+    <div id="receiptModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <img id="modalReceiptImage" src="" alt="Receipt">
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
