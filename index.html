@@ -13,6 +13,15 @@
             <p class="subtitle">Track all your payments in one place</p>
         </header>
 
+        <!-- Monthly Budget Section -->
+        <div class="budget-section">
+            <div class="budget-header">
+                <h2>💰 Monthly Budget</h2>
+                <button type="button" id="editBudgetBtn" class="btn-edit-budget">Edit Budget</button>
+            </div>
+            <div id="budgetOverview" class="budget-overview"></div>
+        </div>
+
         <div class="main-content">
             <!-- Quick Add Section -->
             <div class="card quick-add-card">
@@ -145,6 +154,53 @@
         <div class="modal-content">
             <span class="close">&times;</span>
             <img id="modalReceiptImage" src="" alt="Receipt">
+        </div>
+    </div>
+
+    <!-- Budget Edit Modal -->
+    <div id="budgetModal" class="modal">
+        <div class="modal-content budget-modal-content">
+            <span class="close" id="closeBudgetModal">&times;</span>
+            <h2>Set Monthly Budget</h2>
+            <form id="budgetForm">
+                <div class="budget-form-group">
+                    <label>Food & Dining</label>
+                    <input type="number" id="budgetDining" step="0.01" placeholder="500">
+                </div>
+                <div class="budget-form-group">
+                    <label>Groceries</label>
+                    <input type="number" id="budgetGroceries" step="0.01" placeholder="600">
+                </div>
+                <div class="budget-form-group">
+                    <label>Shopping</label>
+                    <input type="number" id="budgetShopping" step="0.01" placeholder="200">
+                </div>
+                <div class="budget-form-group">
+                    <label>Transportation</label>
+                    <input type="number" id="budgetTransportation" step="0.01" placeholder="150">
+                </div>
+                <div class="budget-form-group">
+                    <label>Entertainment</label>
+                    <input type="number" id="budgetEntertainment" step="0.01" placeholder="150">
+                </div>
+                <div class="budget-form-group">
+                    <label>Bills & Utilities</label>
+                    <input type="number" id="budgetBills" step="0.01" placeholder="300">
+                </div>
+                <div class="budget-form-group">
+                    <label>Healthcare</label>
+                    <input type="number" id="budgetHealthcare" step="0.01" placeholder="100">
+                </div>
+                <div class="budget-form-group">
+                    <label>Personal</label>
+                    <input type="number" id="budgetPersonal" step="0.01" placeholder="100">
+                </div>
+                <div class="budget-form-group">
+                    <label>Other</label>
+                    <input type="number" id="budgetOther" step="0.01" placeholder="200">
+                </div>
+                <button type="submit" class="btn-primary">Save Budget</button>
+            </form>
         </div>
     </div>
 

@@ -1,7 +1,8 @@
-// Transaction Manager with Voice & OCR
+// Transaction Manager with Voice & OCR & Budget Tracking
 class TransactionManager {
     constructor() {
         this.transactions = this.loadTransactions();
+        this.budgets = this.loadBudgets();
         this.currentMode = null;
         this.recognition = null;
         this.currentReceiptData = null;
@@ -38,8 +39,17 @@ class TransactionManager {
 
         // Modal
         document.querySelector('.close').addEventListener('click', () => this.closeModal());
+        document.getElementById('closeBudgetModal').addEventListener('click', () => this.closeBudgetModal());
         window.addEventListener('click', (e) => {
             if (e.target === document.getElementById('receiptModal')) this.closeModal();
+            if (e.target === document.getElementById('budgetModal')) this.closeBudgetModal();
+        });
+
+        // Budget buttons
+        document.getElementById('editBudgetBtn').addEventListener('click', () => this.openBudgetModal());
+        document.getElementById('budgetForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.saveBudget();
         });
 
         // Initialize speech recognition
@@ -47,6 +57,7 @@ class TransactionManager {
 
         // Initial render
         this.renderTransactions();
+        this.renderBudgetOverview();
     }
 
     switchMode(mode) {
@@ -247,6 +258,7 @@ class TransactionManager {
         this.transactions.unshift(transaction);
         this.saveTransactions();
         this.renderTransactions();
+        this.renderBudgetOverview();
     }
 
     categorizeTransaction(merchant) {
@@ -290,6 +302,7 @@ class TransactionManager {
             this.transactions = this.transactions.filter(t => t.id !== id);
             this.saveTransactions();
             this.renderTransactions();
+            this.renderBudgetOverview();
         }
     }
 
@@ -392,6 +405,147 @@ class TransactionManager {
         } catch (e) {
             return [];
         }
+    }
+
+    // Budget Management
+    loadBudgets() {
+        try {
+            const data = localStorage.getItem('budgets');
+            return data ? JSON.parse(data) : {
+                'Food & Dining': 500,
+                'Groceries': 600,
+                'Shopping': 200,
+                'Transportation': 150,
+                'Entertainment': 150,
+                'Bills & Utilities': 300,
+                'Healthcare': 100,
+                'Personal': 100,
+                'Other': 200
+            };
+        } catch (e) {
+            return {};
+        }
+    }
+
+    saveBudgets() {
+        try {
+            localStorage.setItem('budgets', JSON.stringify(this.budgets));
+        } catch (e) {
+            console.error('Error saving budgets:', e);
+        }
+    }
+
+    openBudgetModal() {
+        // Pre-fill current budgets
+        document.getElementById('budgetDining').value = this.budgets['Food & Dining'] || '';
+        document.getElementById('budgetGroceries').value = this.budgets['Groceries'] || '';
+        document.getElementById('budgetShopping').value = this.budgets['Shopping'] || '';
+        document.getElementById('budgetTransportation').value = this.budgets['Transportation'] || '';
+        document.getElementById('budgetEntertainment').value = this.budgets['Entertainment'] || '';
+        document.getElementById('budgetBills').value = this.budgets['Bills & Utilities'] || '';
+        document.getElementById('budgetHealthcare').value = this.budgets['Healthcare'] || '';
+        document.getElementById('budgetPersonal').value = this.budgets['Personal'] || '';
+        document.getElementById('budgetOther').value = this.budgets['Other'] || '';
+
+        document.getElementById('budgetModal').style.display = 'block';
+    }
+
+    closeBudgetModal() {
+        document.getElementById('budgetModal').style.display = 'none';
+    }
+
+    saveBudget() {
+        this.budgets = {
+            'Food & Dining': parseFloat(document.getElementById('budgetDining').value) || 0,
+            'Groceries': parseFloat(document.getElementById('budgetGroceries').value) || 0,
+            'Shopping': parseFloat(document.getElementById('budgetShopping').value) || 0,
+            'Transportation': parseFloat(document.getElementById('budgetTransportation').value) || 0,
+            'Entertainment': parseFloat(document.getElementById('budgetEntertainment').value) || 0,
+            'Bills & Utilities': parseFloat(document.getElementById('budgetBills').value) || 0,
+            'Healthcare': parseFloat(document.getElementById('budgetHealthcare').value) || 0,
+            'Personal': parseFloat(document.getElementById('budgetPersonal').value) || 0,
+            'Other': parseFloat(document.getElementById('budgetOther').value) || 0
+        };
+
+        this.saveBudgets();
+        this.renderBudgetOverview();
+        this.closeBudgetModal();
+
+        // Show confirmation
+        const totalBudget = Object.values(this.budgets).reduce((sum, val) => sum + val, 0);
+        alert(`Budget saved! Total monthly budget: $${totalBudget.toFixed(2)}`);
+    }
+
+    getMonthlySpending() {
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
+
+        const spending = {};
+
+        // Initialize all categories
+        Object.keys(this.budgets).forEach(category => {
+            spending[category] = 0;
+        });
+
+        // Calculate spending for current month
+        this.transactions.forEach(transaction => {
+            const transDate = new Date(transaction.date);
+            if (transDate.getMonth() === currentMonth && transDate.getFullYear() === currentYear) {
+                if (spending[transaction.category] !== undefined) {
+                    spending[transaction.category] += transaction.amount;
+                }
+            }
+        });
+
+        return spending;
+    }
+
+    renderBudgetOverview() {
+        const spending = this.getMonthlySpending();
+        const container = document.getElementById('budgetOverview');
+
+        const categories = Object.keys(this.budgets).filter(cat => this.budgets[cat] > 0);
+
+        if (categories.length === 0) {
+            container.innerHTML = '<p class="empty-budget">Click "Edit Budget" to set your monthly budgets</p>';
+            return;
+        }
+
+        const html = categories.map(category => {
+            const budget = this.budgets[category];
+            const spent = spending[category] || 0;
+            const percentage = budget > 0 ? (spent / budget) * 100 : 0;
+            const remaining = budget - spent;
+
+            let statusClass = 'good';
+            if (percentage >= 100) statusClass = 'over';
+            else if (percentage >= 80) statusClass = 'warning';
+
+            return `
+                <div class="budget-item">
+                    <div class="budget-item-header">
+                        <span class="budget-category">${category}</span>
+                        <span class="budget-amounts">
+                            <span class="spent ${statusClass}">$${spent.toFixed(2)}</span>
+                            <span class="separator">/</span>
+                            <span class="budget-total">$${budget.toFixed(2)}</span>
+                        </span>
+                    </div>
+                    <div class="budget-progress-bar">
+                        <div class="budget-progress-fill ${statusClass}" style="width: ${Math.min(percentage, 100)}%"></div>
+                    </div>
+                    <div class="budget-item-footer">
+                        <span class="budget-percentage">${percentage.toFixed(0)}%</span>
+                        <span class="budget-remaining ${remaining >= 0 ? 'positive' : 'negative'}">
+                            ${remaining >= 0 ? `$${remaining.toFixed(2)} left` : `$${Math.abs(remaining).toFixed(2)} over`}
+                        </span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        container.innerHTML = html;
     }
 }
 
